@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Research Report</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
+    h1 { color: #333; }
+    ul { padding-left: 20px; }
+    .highlight { background-color: yellow; padding: 2px 4px; margin: 2px 0; display: inline-block; }
+  </style>
+</head>
+<body>
+  <h1>Research Report</h1>
+  <div id="report-content"></div>
+  <button id="download-pdf">Download PDF</button>
+
+  <script>
+    chrome.storage.local.get(['visitedSites', 'highlights'], (result) => {
+      const reportContent = document.getElementById('report-content');
+      
+      const sitesHtml = `
+        <h2>Visited Sites:</h2>
+        <ul>
+          ${result.visitedSites.map(site => `<li><a href="${site}" target="_blank">${site}</a></li>`).join('')}
+        </ul>
+      `;
+
+      const highlightsHtml = `
+        <h2>Highlights:</h2>
+        <ul>
+          ${result.highlights.map(h => `
+            <li>
+              <a href="${h.url}" target="_blank">${h.url}</a>
+              <div class="highlight">${h.text}</div>
+            </li>
+          `).join('')}
+        </ul>
+      `;
+
+      reportContent.innerHTML = sitesHtml + highlightsHtml;
+    });
+
+    document.getElementById('download-pdf').addEventListener('click', () => {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.html(document.body, {
+        callback: function (doc) {
+          doc.save('research-report.pdf');
+        },
+        x: 15,
+        y: 15,
+        width: 170,
+        windowWidth: 650
+      });
+    });
+  </script>
+</body>
+</html>
